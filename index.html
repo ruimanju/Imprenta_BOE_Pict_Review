@@ -170,7 +170,7 @@
         <div class="dimension-group"><label for="projectName">Proyecto:</label><input type="text" id="projectName" placeholder="Nombre del proyecto"></div>
         <div class="dimension-group"><label for="inputWidth">Ancho general (mm):</label><input type="number" id="inputWidth" min="1"></div>
         <div class="dimension-group"><label for="inputHeight">Alto general (mm):</label><input type="number" id="inputHeight" min="1"></div>
-        <div class="dimension-group"><label for="inputDPI">DPI:</label><input type="number" id="inputDPI" value="200" min="72" max="1200"></div>
+        <div class="dimension-group"><label for="inputDPI">Resolución requerida:</label><input type="number" id="inputDPI" value="200" min="72" max="1200"></div>
       </div>
       <p class="info-text">El cálculo de resolución usa el tamaño de reproducción × la resolución que requiere la salida. Puede especificar un tamaño de reproducción distinto para cada imagen en la tabla.</p>
       <div id="dropZone">Arrastrar o hacer clic para seleccionar imágenes JPG, PNG, TIF</div>
@@ -640,6 +640,7 @@ async function generarPDF() {
     </div>
 </body>
 </html>
+
 
 
 
