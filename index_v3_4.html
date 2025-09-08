@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Revisión de Imágenes para Publicación v3.1</title>
+
+<style>
+    :root { --main-blue: #3498db; --dark-blue: #2980b9; --green: #27ae60; --dark-green: #219653; --red: #e74c3c; --dark-red: #c0392b; }
+    * { box-sizing:border-box; margin:0; padding:0 }
+    body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f5f7fa; color:#333; line-height:1.6; padding:20px; }
+    .container { max-width:1600px; margin:0 auto; background:#fff; border-radius:10px; box-shadow:0 5px 15px rgba(0,0,0,0.1); padding:30px; position:relative; }
+    #spinner { position:fixed; inset:0; z-index: 2000; background:rgba(255,255,255,0.85); display:none; align-items:center; justify-content:center; font-size:1.2rem; color:var(--main-blue); }
+    .header { text-align:center; margin-bottom:30px }
+    .logo-container img { max-width:420px }
+    h1 { font-size:2rem; color:#2c3e50; margin:10px 0 }
+    .subtitle { color:#7f8c8d; font-size:1.1rem }
+    .config-section { background:#f8f9fa; border:1px solid #e0e6ed; border-radius:8px; padding:25px; margin-bottom:20px; }
+    .dimension-inputs { display:flex; flex-wrap:wrap; gap:20px; margin-bottom:20px; }
+    .dimension-group { flex:1; min-width:150px }
+    .dimension-group label { display:block; margin-bottom:8px }
+    .dimension-group input { width:100%; padding:10px; border:1px solid #ced4da; border-radius:6px; font-size:1rem; font-family: inherit; }
+    .info-text { background:#e3f2fd; padding:15px; border-radius:6px; margin-bottom:20px; font-size:1rem; }
+    #dropZone { border:2px dashed var(--main-blue); border-radius:8px; padding:40px; text-align:center; color:#7f8c8d; margin-bottom:20px; transition:background .2s; }
+    #dropZone.dragover { background:rgba(52,152,219,0.1) }
+    
+    /* CAMBIO: Contenedores de botones centrados */
+    .report-buttons, .export-buttons { display:flex; flex-wrap:wrap; gap:20px; justify-content: center; }
+    .report-buttons { margin-bottom:20px }
+    .export-buttons { margin-top:30px }
+    
+    /* CAMBIO: Botones con ancho fijo y texto en negrita */
+    .export-btn { flex: 0 1 280px; padding:14px; border:none; border-radius:6px; color:#fff; font-size:1rem; cursor:pointer; transition:background .2s; display:flex; align-items:center; justify-content:center; gap:10px; font-weight: bold; }
+    .export-btn strong { font-size: 1.1rem; }
+    .export-btn svg { width:24px; height:24px; fill:currentColor; }
+    .export-btn.json { background:var(--main-blue) }
+    .export-btn.json:hover { background:var(--dark-blue) }
+    .export-btn.excel { background:var(--green) }
+    .export-btn.excel:hover { background:var(--dark-green) }
+    .export-btn.pdf { background:var(--red) }
+    .export-btn.pdf:hover { background:var(--dark-red) }
+    
+    .image-review-container { overflow-x:auto; margin-bottom:30px; border:1px solid #e0e6ed; border-radius:8px; }
+    .image-review-table { width:100%; min-width:1400px; border-collapse:collapse; }
+    .image-review-table th, .image-review-table td { border:1px solid #dee2e6; padding:12px; vertical-align:top; }
+    .image-review-table th { background:var(--main-blue); color:#fff; position:sticky; top:0; font-weight:600; text-align:center;}
+    
+    /* CAMBIO: Reajuste de anchos de columna */
+    .image-review-table th:nth-child(1), .image-review-table td:nth-child(1) { width: 8%; }  /* Miniatura */
+    .image-review-table th:nth-child(2), .image-review-table td:nth-child(2) { width: 15%; min-width: 200px; text-align:left; } /* Archivo */
+    .image-review-table th:nth-child(3), .image-review-table td:nth-child(3) { width: 8%; }  /* Tamaño imagen (px) */
+    .image-review-table th:nth-child(4), .image-review-table td:nth-child(4) { width: 10%; } /* Tamaño Específico */
+    .image-review-table th:nth-child(5), .image-review-table td:nth-child(5) { width: 7%; }  /* Resolución */
+    .image-review-table th:nth-child(6), .image-review-table td:nth-child(6) { width: 7%; }  /* Calidad gráfica */
+    .image-review-table th:nth-child(7), .image-review-table td:nth-child(7) { width: 45%; min-width: 400px; } /* Observaciones */
+
+    .image-thumbnail { max-width:100px; max-height:100px; border-radius:4px; cursor:pointer; display:block; margin:auto; }
+    .specific-size-input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-align:center; }
+    .observations-textarea { width:100%; height:80px; padding: 8px; font-family: inherit; border: 1px solid #ccc; border-radius: 4px; }
+    #lightbox { position:fixed; inset:0; background:rgba(0,0,0,0.85); display:none; align-items:center; justify-content:center; z-index:1000; }
+    #lightbox img { max-width:90%; max-height:90%; box-shadow:0 0 20px rgba(0,0,0,0.5); }
+    #lightbox-close { position:absolute; top:20px; right:30px; color:white; font-size:3rem; font-weight:bold; cursor:pointer; text-shadow: 0 0 5px black; user-select:none; }
+        .instructions {
+            background-color: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .instructions h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .instructions ol {
+            padding-left: 25px;
+        }
+
+        .instructions li {
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+	.footer {
+		text-align: center;
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid #e0e6ed;
+        color: #7f8c8d;
+        font-size: 1rem;
+    }
+</style>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+</head>
+<body>
+  <div class="container">
+    <div id="spinner">Cargando…</div>
+
+    <div class="header">
+      <div class="logo-container"><img src="img/logo.png" alt="Logo"></div>
+      <h1>Revisión de imágenes para edición</h1>
+      <p class="subtitle">Validación antes de publicación</p>
+    </div>
+        <div class="instructions">
+            <h2>Instrucciones de uso:</h2>
+            <ol>
+			    <li>Indique HR y/o denominación del proyecto</li>
+                <li>Especifique las dimensiones de reproducción generales (se pueden modificar para cada imagen)</li>
+                <li>Haga clic en "Cargar Imágenes" y seleccione los archivos a revisar</li>
+                <li>Revise el estado de cada imagen en la tabla</li>
+                <li>Marque si la imagen tiene calidad suficiente para la edición</li>
+                <li>Añada observaciones si es necesario</li>
+                <li>Exporte los resultados a Excel o PDF según sus necesidades</li>
+				<li>Guardar y recuperar proyectos con los botones correspondientes</li>
+            </ol>
+        </div>
+
+    <div class="config-section">
+      <div class="dimension-inputs">
+        <div class="dimension-group"><label for="projectName">Proyecto:</label><input type="text" id="projectName" placeholder="Nombre del proyecto"></div>
+        <div class="dimension-group"><label for="inputWidth">Ancho general (mm):</label><input type="number" id="inputWidth" min="1"></div>
+        <div class="dimension-group"><label for="inputHeight">Alto general (mm):</label><input type="number" id="inputHeight" min="1"></div>
+        <div class="dimension-group"><label for="inputDPI">DPI:</label><input type="number" id="inputDPI" value="200" min="72" max="1200"></div>
+      </div>
+      <p class="info-text">El cálculo de resolución usa dimensiones × DPI. Puede especificar un tamaño distinto para cada imagen en la tabla.</p>
+      <div id="dropZone">Arrastrar o hacer clic para seleccionar imágenes JPG, PNG, TIF</div>
+      <input type="file" id="imageUpload" accept=".jpg,.jpeg,.png,.tif,.tiff" multiple style="display:none;">
+    </div>
+
+    <div class="report-buttons">
+      <button id="saveReport" class="export-btn json"><strong>Guardar informe</strong></button>
+      <button id="loadReportBtn" class="export-btn json"><strong>Cargar informe</strong></button>
+      <input type="file" id="loadReport" accept=".json" style="display:none;">
+    </div>
+
+    <div class="image-review-container">
+      <table class="image-review-table">
+        <thead>
+          <tr>
+            <th>Miniatura</th><th>Archivo</th><th>Tamaño imagen (px)</th><th>Tamaño reprod. (mm)</th>
+            <th>Resolución</th><th>Calidad gráfica</th><th>Observaciones</th>
+          </tr>
+        </thead>
+        <tbody id="imageReviewBody">
+          <tr><td colspan="7" style="text-align:center; color:#7f8c8d; padding:30px">No hay imágenes aún</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="export-buttons">
+		<button id="exportExcel" class="export-btn excel">
+			<svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+				<path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/>
+				<path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+			</svg>
+			Exportar a Excel
+		</button>
+		<button id="exportPDF" class="export-btn pdf">
+			<svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+				<path d="M5.523 12.424c.14-.082.293-.162.459-.238a7.878 7.878 0 0 1-.45.606c-.28.337-.498.516-.635.572a.266.266 0 0 1-.035.012.282.282 0 0 1-.026-.044c-.056-.11-.054-.216.04-.36.106-.165.319-.354.647-.548zm2.455-1.647c-.119.025-.237.05-.356.078a21.148 21.148 0 0 0 .5-1.05 12.045 12.045 0 0 0 .51.858c-.217.032-.436.07-.654.114zm2.525.939a3.881 3.881 0 0 1-.435-.41c.228.005.434.022.612.054.317.057.466.147.518.209a.095.095 0 0 1 .026.064.436.436 0 0 1-.06.2.307.307 0 0 1-.094.124.107.107 0 0 1-.069.015c-.09-.003-.258-.066-.498-.256zM8.278 6.97c-.04.244-.108.524-.2.829a4.86 4.86 0 0 1-.089-.346c-.076-.353-.087-.63-.046-.822.038-.177.11-.248.196-.283a.517.517 0 0 1 .145-.04c.013.03.028.092.032.198.005.122-.007.277-.038.465z"/>
+				<path fill-rule="evenodd" d="M4 0h5.293A1 1 0 0 1 10 .293L13.707 4a1 1 0 0 1 .293.707V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm5.5 1.5v2a1 1 0 0 0 1 1h2l-3-3zM4.165 13.668c.09.18.23.343.438.419.207.075.412.04.58-.03.318-.13.635-.436.926-.786.333-.401.683-.927 1.021-1.51a11.651 11.651 0 0 1 1.997-.406c.3.383.61.713.91.95.28.22.603.403.934.417a.856.856 0 0 0 .51-.138c.155-.101.27-.247.354-.416.09-.181.145-.37.138-.563a.844.844 0 0 0-.2-.518c-.226-.27-.596-.4-.96-.465a5.76 5.76 0 0 0-1.335-.05 10.954 10.954 0 0 1-.98-1.686c.25-.66.437-1.284.52-1.794.036-.218.055-.426.048-.614a1.238 1.238 0 0 0-.127-.538.7.7 0 0 0-.477-.365c-.202-.043-.41 0-.601.077-.377.15-.576.47-.651.823-.073.34-.04.736.046 1.136.088.406.238.848.43 1.295a19.697 19.697 0 0 1-1.062 2.227 7.662 7.662 0 0 0-1.482.645c-.37.22-.699.48-.897.787-.21.326-.275.714-.08 1.103z"/>
+			</svg>
+        Exportar a PDF
+		</button>
+	</div>
+  </div>
+
+  <div id="lightbox">
+    <span id="lightbox-close">&times;</span>
+    <img src="" alt="Vista previa">
+  </div>
+
+<script>
+    const dropZone = document.getElementById('dropZone'), imageUpload = document.getElementById('imageUpload'),
+          inputWidth = document.getElementById('inputWidth'), inputHeight = document.getElementById('inputHeight'),
+          inputDPI = document.getElementById('inputDPI'), projectName = document.getElementById('projectName'),
+          imageReviewBody = document.getElementById('imageReviewBody'), exportExcel = document.getElementById('exportExcel'),
+          exportPDF = document.getElementById('exportPDF'), saveReport = document.getElementById('saveReport'),
+          loadReportBtn = document.getElementById('loadReportBtn'), loadReport = document.getElementById('loadReport'),
+          spinner = document.getElementById('spinner'), lightbox = document.getElementById('lightbox'),
+          lbImage = lightbox.querySelector('img'), lightboxClose = document.getElementById('lightbox-close');
+    let imageDataForExport = [];
+
+    const showSpinner = (on=true) => spinner.style.display = on ? 'flex' : 'none';
+
+    ['dragenter','dragover'].forEach(evt=>dropZone.addEventListener(evt,e=>{e.preventDefault();dropZone.classList.add('dragover')}));
+    ['dragleave','drop'].forEach(evt=>dropZone.addEventListener(evt,e=>{e.preventDefault();dropZone.classList.remove('dragover')}));
+    dropZone.addEventListener('drop',e=>{imageUpload.files=e.dataTransfer.files;handleImageUpload({target:imageUpload})});
+    dropZone.addEventListener('click',()=>imageUpload.click());
+    imageUpload.addEventListener('change',handleImageUpload);
+
+    const openLightbox = src => { lbImage.src = src; lightbox.style.display = 'flex'; };
+    const closeLightbox = () => lightbox.style.display = 'none';
+    lightbox.addEventListener('click', (e) => { if(e.target !== lbImage) closeLightbox(); });
+    lightboxClose.addEventListener('click', closeLightbox);
+
+    const checkImageSize = (imgWidth, imgHeight, reqWidthMM, reqHeightMM, dpi) => {
+        if (!reqWidthMM || !reqHeightMM || !dpi) return false;
+        const minW = Math.round((reqWidthMM / 25.4) * dpi);
+        const minH = Math.round((reqHeightMM / 25.4) * dpi);
+        return imgWidth >= minW * 0.9 && imgHeight >= minH * 0.9;
+    };
+
+    const updateRowStatus = (index) => {
+        const item = imageDataForExport[index];
+        const row = imageReviewBody.rows[index];
+        if (!item || !row) return;
+
+        const sizeInput = row.cells[3].querySelector('input').value.trim();
+        let currentWidthMM = parseFloat(inputWidth.value), currentHeightMM = parseFloat(inputHeight.value);
+
+        if (sizeInput.includes('x')) {
+            const parts = sizeInput.split('x').map(s => parseFloat(s.trim()));
+            if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                [currentWidthMM, currentHeightMM] = parts;
+            }
+        }
+        
+        item.ok = checkImageSize(item.width, item.height, currentWidthMM, currentHeightMM, parseInt(inputDPI.value));
+        item.specificSize = sizeInput;
+
+        const statusCell = row.cells[4];
+        statusCell.textContent = item.ok ? '✔' : '✖';
+        statusCell.style.color = item.ok ? '#27ae60' : '#e74c3c';
+    };
+
+    async function handleImageUpload(e, loadedData = null) {
+      const files = loadedData ? [] : Array.from(e.target.files || []);
+      if (!files.length && !loadedData) return;
+      showSpinner(true);
+      imageReviewBody.innerHTML = '';
+      imageDataForExport = [];
+
+      const generalW = parseFloat(inputWidth.value), generalH = parseFloat(inputHeight.value), dpi = parseInt(inputDPI.value);
+      if ((!generalW || !generalH || !dpi) && !loadedData) {
+        alert('Completa ancho, alto y DPI generales.');
+        showSpinner(false);
+        return;
+      }
+
+      const processItem = (item, index) => {
+        const row = imageReviewBody.insertRow();
+        const dataForExport = { ...item };
+
+        const c0 = row.insertCell();
+        const thumb = new Image();
+        thumb.src = item.src; thumb.className = 'image-thumbnail';
+        thumb.onclick = () => openLightbox(item.src);
+        c0.appendChild(thumb);
+        
+        row.insertCell().textContent = item.name;
+        
+        const c2 = row.insertCell();
+        c2.textContent = `${item.width}×${item.height}`; c2.style.textAlign = 'center';
+        
+        const c3 = row.insertCell();
+        const sizeInput = document.createElement('input');
+        sizeInput.type = 'text'; sizeInput.className = 'specific-size-input';
+        sizeInput.placeholder = 'ej: 120x85';
+        sizeInput.value = item.specificSize || `${generalW}x${generalH}`;
+        sizeInput.addEventListener('input', () => updateRowStatus(index));
+        c3.appendChild(sizeInput);
+        
+        const c4 = row.insertCell();
+        c4.style.textAlign = 'center'; dataForExport.statusCell = c4;
+        
+        const c5 = row.insertCell();
+        c5.style.textAlign = 'center';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox'; cb.checked = item.quality || false;
+        c5.appendChild(cb);
+        dataForExport.checkbox = cb;
+        
+        const c6 = row.insertCell();
+        // CAMBIO: Aplicar la nueva clase CSS a la caja de observaciones
+        const ta = document.createElement('textarea');
+        ta.className = 'observations-textarea';
+        ta.value = item.obs || '';
+        c6.appendChild(ta);
+        dataForExport.textarea = ta;
+
+        imageDataForExport.push(dataForExport);
+        updateRowStatus(index);
+      };
+
+      if (loadedData) {
+        loadedData.forEach(processItem);
+      } else {
+        const imgFiles = files.filter(f => /\.(jpe?g|png|tiff?)$/i.test(f.name));
+        const tasks = imgFiles.map(f => new Promise((res, rej) => {
+            const r = new FileReader();
+            r.onload = ev => {
+                const img = new Image();
+                img.onload = () => res({
+                    name: f.name, src: ev.target.result,
+                    width: img.width, height: img.height
+                });
+                img.onerror = rej; img.src = ev.target.result;
+            };
+            r.onerror = rej; r.readAsDataURL(f);
+        }));
+        try {
+            const arr = await Promise.all(tasks);
+            arr.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+            arr.forEach(processItem);
+        } catch (err) { console.error(err); alert('Error procesando imágenes'); }
+      }
+      showSpinner(false);
+    }
+    
+    async function saveFileWithPicker(blob, suggestedName, types) {
+      if (window.showSaveFilePicker) {
+        try {
+          const handle = await window.showSaveFilePicker({ suggestedName, types });
+          const writable = await handle.createWritable();
+          await writable.write(blob);
+          await writable.close();
+          return;
+        } catch (err) {
+          if (err.name === 'AbortError') return;
+        }
+      }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = suggestedName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    saveReport.addEventListener('click', () => {
+        if (!imageDataForExport.length) return alert('Nada que guardar');
+        const rpt = {
+            project: projectName.value, widthMM: inputWidth.value,
+            heightMM: inputHeight.value, dpi: inputDPI.value,
+            date: new Date().toISOString(),
+            images: imageDataForExport.map(it => ({
+                name: it.name, src: it.src, width: it.width, height: it.height,
+                quality: it.checkbox.checked, obs: it.textarea.value,
+                specificSize: it.specificSize
+            }))
+        };
+        const blob = new Blob([JSON.stringify(rpt, null, 2)], { type: 'application/json' });
+        saveFileWithPicker(blob, `${(projectName.value||'informe').replace(/ /g,'_')}.json`, [
+            { description: 'Archivo JSON', accept: { 'application/json': ['.json'] } }
+        ]);
+    });
+
+    exportExcel.addEventListener('click', () => {
+      if (!imageDataForExport.length) return alert('Nada que exportar');
+      const sep=';', nl='\r\n';
+      let csv = `Proyecto;${projectName.value||''}${nl}`;
+      csv += ['Archivo','Tamaño imagen (px)','Tamaño reprod. (mm)','Resolución','Calidad gráfica','Observaciones'].join(sep)+nl;
+      imageDataForExport.forEach(it => {
+        csv += [
+          it.name, `${it.width}×${it.height}`, it.specificSize || '', it.ok ? 'OK' : 'NO APTO',
+          it.checkbox.checked ? 'OK' : 'NO APTO', `"${it.textarea.value.replace(/"/g, '""')}"`
+        ].join(sep) + nl;
+      });
+      const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+      saveFileWithPicker(blob, `${(projectName.value||'informe').replace(/ /g,'_')}.csv`, [
+        { description: 'Archivo CSV', accept: { 'text/csv': ['.csv'] } }
+      ]);
+    });
+
+    function resizeImage(base64, maxWidth, maxHeight) {
+        return new Promise(resolve => {
+            const img = new Image();
+            img.onload = function() {
+                let { width, height } = img;
+                if (width > maxWidth || height > maxHeight) {
+                    const ratio = Math.min(maxWidth / width, maxHeight / height);
+                    width *= ratio;
+                    height *= ratio;
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                resolve({
+                    src: canvas.toDataURL('image/jpeg', 0.8),
+                    width: width,
+                    height: height
+                });
+            };
+            img.src = base64;
+        });
+    }
+
+async function generarPDF() {
+        if (imageDataForExport.length === 0) return alert("Nada que guardar.");
+        
+        showSpinner(true);
+
+        const imagePromises = imageDataForExport.map(item => resizeImage(item.src, 60, 60));
+        const processedImages = await Promise.all(imagePromises);
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('l', 'pt', 'a4');
+        const docTitle = projectName.value || 'Informe';
+        const pageMargin = 40;
+        const pageWidth = doc.internal.pageSize.getWidth();
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.text(docTitle, pageWidth - pageMargin, 40, { align: 'right' });
+        
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        const reportTitle = `Informe de revisión de imágenes para publicación (${new Date().toLocaleDateString()})`;
+        doc.text(reportTitle, pageWidth - pageMargin, 55, { align: 'right' });
+
+        const head = [['Miniatura', 'Archivo', 'Tamaño imagen (px)', 'Tamaño reprod.', 'Resolución', 'Calidad gráfica', 'Observaciones']];
+        
+        // --- INICIO DE CAMBIOS CLAVE ---
+        const body = imageDataForExport.map((item, index) => {
+            let repro = (item.specificSize && item.specificSize.trim() !== "") ? item.specificSize : `${inputWidth.value}x${inputHeight.value}`;
+            
+            // 1. ANCHO REAL: Calculamos el ancho disponible para el texto en la columna "Archivo".
+            // El ancho de la columna es 160pt y le restamos 10pt de padding (5pt por cada lado).
+            const fileNameMaxWidth = 150; 
+            
+            // 2. CORTE MANUAL: Usamos la función de jsPDF para dividir el nombre del archivo en un array de líneas.
+            const fileNameLines = doc.splitTextToSize(item.name, fileNameMaxWidth);
+
+            return [
+                processedImages[index],
+                fileNameLines, // 3. Usamos el array de líneas en lugar del texto simple.
+                `${item.width}×${item.height}`,
+                repro,
+                item.ok ? 'OK' : 'INSUF.',
+                item.checkbox.checked ? 'OK' : 'INSUF.',
+                item.textarea.value.trim()
+            ];
+        });
+        // --- FIN DE CAMBIOS CLAVE ---
+
+        doc.autoTable({
+            startY: 100,
+            head: head,
+            body: body,
+            theme: 'grid',
+            styles: { valign: 'middle', cellPadding: 5 },
+            headStyles: { halign: 'center', fontStyle: 'bold', fillColor: '#3498db' },
+            bodyStyles: { minCellHeight: 70 }, 
+            columnStyles: {
+                0: { cellWidth: 80, halign: 'center' },
+                // 4. Se elimina "overflow: 'linebreak'" porque ya no es necesario.
+                1: { cellWidth: 160 }, 
+                2: { cellWidth: 70, halign: 'center' },
+                3: { cellWidth: 70, halign: 'center' },
+                4: { cellWidth: 70, halign: 'center' },
+                5: { cellWidth: 70, halign: 'center' },
+                6: { cellWidth: 'auto', overflow: 'linebreak' },
+            },
+            didParseCell: (data) => {
+                if (data.section === 'body' && data.column.index === 0) {
+                    data.cell.text = ''; 
+                }
+                if (data.section === 'body' && (data.column.index === 4 || data.column.index === 5)) {
+                    data.cell.styles.halign = 'center';
+                    data.cell.styles.fontStyle = 'bold';
+                    data.cell.styles.fontSize = 10;
+                    if (data.cell.raw === 'OK') data.cell.styles.textColor = '#27ae60';
+                    else data.cell.styles.textColor = '#e74c3c';
+                }
+            },
+            didDrawCell: (data) => {
+                if (data.section === 'body' && data.column.index === 0) {
+                    const imgData = data.cell.raw;
+                    if (imgData && imgData.src) {
+                        const x = data.cell.x + (data.cell.width - imgData.width) / 2;
+                        const y = data.cell.y + (data.cell.height - imgData.height) / 2;
+                        doc.addImage(imgData.src, 'JPEG', x, y, imgData.width, imgData.height);
+                    }
+                }
+            },
+			pageBreak: 'auto',
+			rowPageBreak: 'avoid',
+			willDrawCell: (data) => {
+				if (data.section === 'body' && data.cell.raw?.src) {
+					data.cell.height = Math.max(data.cell.height, data.cell.raw.height + 10);
+				}
+			},
+            didDrawPage: (data) => {
+                if (doc.internal.getNumberOfPages() > 1 && data.pageNumber > 1) {
+                    doc.setFontSize(8);
+                    const footerText = `Informe de imágenes - ${docTitle} - pág ${data.pageNumber}`;
+                    doc.text(footerText, pageWidth - pageMargin, doc.internal.pageSize.getHeight() - 15, { align: 'right' });
+                }
+            }
+        });
+
+        const pdfBlob = doc.output('blob');
+        saveFileWithPicker(pdfBlob, `${docTitle.replace(/ /g,'_')}.pdf`, [
+            { description: 'Archivo PDF', accept: { 'application/pdf': ['.pdf'] } }
+        ]);
+        
+        showSpinner(false);
+    }
+
+    exportPDF.addEventListener('click', generarPDF);
+    loadReportBtn.addEventListener('click', ()=>loadReport.click());
+    loadReport.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const rpt = JSON.parse(ev.target.result);
+          projectName.value = rpt.project; inputWidth.value = rpt.widthMM;
+          inputHeight.value = rpt.heightMM; inputDPI.value = rpt.dpi;
+          handleImageUpload(null, rpt.images);
+        } catch(err) { console.error(err); alert('JSON inválido'); }
+      };
+      reader.readAsText(file);
+    });
+</script>
+    <div class="footer">
+        <p>Herramienta para revisión de imágenes para publicaciones | BOE - OO TT</p>
+        <p>© 2025 Todos los derechos reservados</p>
+    </div>
+</body>
+</html>
