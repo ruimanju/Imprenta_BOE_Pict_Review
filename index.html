@@ -60,29 +60,68 @@
     #lightbox { position:fixed; inset:0; background:rgba(0,0,0,0.85); display:none; align-items:center; justify-content:center; z-index:1000; }
     #lightbox img { max-width:90%; max-height:90%; box-shadow:0 0 20px rgba(0,0,0,0.5); }
     #lightbox-close { position:absolute; top:20px; right:30px; color:white; font-size:3rem; font-weight:bold; cursor:pointer; text-shadow: 0 0 5px black; user-select:none; }
-        .instructions {
-            background-color: #e8f4f8;
-            border-left: 4px solid #3498db;
-            padding: 20px;
-            margin-bottom: 30px;
-            border-radius: 0 8px 8px 0;
-        }
-
-        .instructions h2 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-        }
-
-        .instructions ol {
-            padding-left: 25px;
-        }
-
-        .instructions li {
-            margin-bottom: 12px;
-            font-size: 1rem;
-        }
-
+        
+    /* Nuevos estilos para el modal */
+    #instructions-modal {
+        display: none;
+        position: fixed;
+        z-index: 1001;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+        padding-top: 60px;
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 30px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 600px;
+        border-radius: 10px;
+        position: relative;
+    }
+    .modal-content h2 {
+        color: #2c3e50;
+        margin-bottom: 15px;
+        font-size: 1.2rem;
+    }
+    .modal-content ol {
+        padding-left: 25px;
+    }
+    .modal-content li {
+        margin-bottom: 12px;
+        font-size: 1rem;
+    }
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    /* Estilo para el enlace de instrucciones */
+    #show-instructions-btn {
+        background: none;
+        border: none;
+        color: var(--main-blue);
+        text-decoration: underline;
+        cursor: pointer;
+        font-size: 1rem;
+        padding: 0;
+        margin-bottom: 10px;
+        display: block;
+        text-align: left;
+    }
+	
 	.footer {
 		text-align: center;
         margin-top: 40px;
@@ -123,19 +162,8 @@
       <h1>Revisión de imágenes para edición</h1>
       <p class="subtitle">Validación antes de publicación</p>
     </div>
-        <div class="instructions">
-            <h2>Instrucciones de uso:</h2>
-            <ol>
-			    <li>Indique HR y/o denominación del proyecto</li>
-                <li>Especifique las dimensiones de reproducción generales (se pueden modificar para cada imagen)</li>
-                <li>Haga clic en "Cargar Imágenes" y seleccione los archivos a revisar</li>
-                <li>Revise el estado de cada imagen en la tabla</li>
-                <li>Marque si la imagen tiene calidad suficiente para la edición</li>
-                <li>Añada observaciones si es necesario</li>
-                <li>Exporte los resultados a Excel o PDF según sus necesidades</li>
-				<li>Guardar y recuperar proyectos con los botones correspondientes</li>
-            </ol>
-        </div>
+
+    <button id="show-instructions-btn">Instrucciones de uso</button>
 
     <div class="config-section">
       <div class="dimension-inputs">
@@ -193,6 +221,23 @@
   <div id="lightbox">
     <span id="lightbox-close">&times;</span>
     <img src="" alt="Vista previa">
+  </div>
+
+  <div id="instructions-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Instrucciones de uso:</h2>
+      <ol>
+        <li>Indique HR y/o denominación del proyecto</li>
+        <li>Especifique las dimensiones de reproducción generales (se pueden modificar para cada imagen)</li>
+        <li>Haga clic en "Cargar Imágenes" y seleccione los archivos a revisar</li>
+        <li>Revise el estado de cada imagen en la tabla</li>
+        <li>Marque si la imagen tiene calidad suficiente para la edición</li>
+        <li>Añada observaciones si es necesario</li>
+        <li>Exporte los resultados a Excel o PDF según sus necesidades</li>
+        <li>Guardar y recuperar proyectos con los botones correspondientes</li>
+      </ol>
+    </div>
   </div>
 
 <script>
@@ -557,6 +602,7 @@ async function generarPDF() {
             inputWidth.value = '';
             inputHeight.value = '';
             // El DPI se puede mantener con su valor por defecto de 200
+            inputDPI.value = '200';
 
             // 3. Limpiamos la tabla de imágenes y los datos internos
             imageReviewBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#7f8c8d; padding:30px">No hay imágenes aún</td></tr>';
@@ -566,7 +612,27 @@ async function generarPDF() {
             imageUpload.value = null;
             loadReport.value = null; // AÑADIR ESTA LÍNEA
         }
-    });	
+    });
+
+// --- Lógica para la ventana emergente de instrucciones ---
+    const modal = document.getElementById('instructions-modal');
+    const btn = document.getElementById("show-instructions-btn");
+    const span = document.getElementsByClassName("close")[0];
+
+    btn.onclick = function() {
+        modal.style.display = "block";
+    }
+
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+	
 </script>
     <div class="footer">
         <p>Herramienta para revisión de imágenes para publicaciones | BOE - OO TT</p>
