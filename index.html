@@ -20,8 +20,8 @@
     .dimension-group { flex:1; min-width:150px }
     .dimension-group label { display:block; margin-bottom:8px }
     .dimension-group input { width:100%; padding:10px; border:1px solid #ced4da; border-radius:6px; font-size:1rem; font-family: inherit; }
-    .info-text { background:#e3f2fd; padding:15px; border-radius:6px; margin-bottom:20px; font-size:1rem; text-align: center; }
-    #dropZone { border:2px dashed var(--main-blue); border-radius:8px; padding:40px; text-align:center; color:#7f8c8d; margin-bottom:20px; transition:background .2s; }
+    .info-text { background:#e3f2fd; padding:15px; border-radius:6px; margin-bottom:20px; font-size:1rem; text-align: center;}
+    #dropZone { border:2px dashed var(--main-blue); border-radius:8px; padding:40px; text-align:center; color:#e74c3c; font-size: 1.1rem; font-weight: bold; margin-bottom:20px; transition:background .2s; }
     #dropZone.dragover { background:rgba(52,152,219,0.1) }
     
     /* CAMBIO: Contenedores de botones centrados */
@@ -61,8 +61,8 @@
     #lightbox img { max-width:90%; max-height:90%; box-shadow:0 0 20px rgba(0,0,0,0.5); }
     #lightbox-close { position:absolute; top:20px; right:30px; color:white; font-size:3rem; font-weight:bold; cursor:pointer; text-shadow: 0 0 5px black; user-select:none; }
         
-    /* Nuevos estilos para el modal */
-    #instructions-modal {
+    /* Estilos genéricos para el modal (ventana emergente) */
+    .modal {
         display: none;
         position: fixed;
         z-index: 1001;
@@ -106,6 +106,12 @@
     .close:focus {
         color: black;
         text-decoration: none;
+        cursor: pointer;
+    }
+	/* Estilos para el enlace de la guía */
+    #show-guide-btn {
+        color: var(--main-blue);
+        text-decoration: underline;
         cursor: pointer;
     }
     /* Estilo para el enlace de instrucciones */
@@ -170,7 +176,7 @@
         <div class="dimension-group"><label for="projectName">Proyecto:</label><input type="text" id="projectName" placeholder="Nombre del proyecto"></div>
         <div class="dimension-group"><label for="inputWidth">Ancho general (mm):</label><input type="number" id="inputWidth" min="1"></div>
         <div class="dimension-group"><label for="inputHeight">Alto general (mm):</label><input type="number" id="inputHeight" min="1"></div>
-        <div class="dimension-group"><label for="inputDPI">Resolución requerida:</label><input type="number" id="inputDPI" value="200" min="72" max="1200"></div>
+        <div class="dimension-group"><label for="outputType">Resolución requerida (<a href="#" id="show-guide-btn">ver guía</a>):</label><input type="number" id="inputDPI" value="200" min="72" max="1200"></div>
       </div>
       <p class="info-text">El cálculo de resolución usa el tamaño de reproducción × la resolución que requiere la salida. Puede especificar un tamaño de reproducción distinto para cada imagen en la tabla.</p>
       <div id="dropZone">Arrastrar o hacer clic para seleccionar imágenes JPG, PNG, TIF</div>
@@ -239,6 +245,23 @@
       </ol>
     </div>
   </div>
+
+	<div id="guide-modal" class="modal">
+		<div class="modal-content">
+		<span class="close">&times;</span>
+		<h2>Guía de resoluciones</h2>
+		<ol>
+			<li>Pantalla normal: 96 ppi</li>
+			<li>Monitor o TV de alta densidad: 160 ppi</li>
+			<li>Pantalla de móvil de alta gama: 460 ppi</li>
+			<li>Impresión digital: 200 dpi</li>
+			<li>Impresión offset: 300 dpi</li>
+		</ol>
+		<p class="info-text" style="margin-top: 20px; font-size: 0.9rem; text-align:left;">
+			Nota: ppi (pixels por pulgada) se usa para pantallas y dpi (puntos por pulgada) se usa para impresión.
+		</p>
+		</div>
+	</div>  
 
 <script>
     const dropZone = document.getElementById('dropZone'), imageUpload = document.getElementById('imageUpload'),
@@ -615,21 +638,38 @@ async function generarPDF() {
     });
 
 // --- Lógica para la ventana emergente de instrucciones ---
-    const modal = document.getElementById('instructions-modal');
-    const btn = document.getElementById("show-instructions-btn");
-    const span = document.getElementsByClassName("close")[0];
+    const instructionsModal = document.getElementById('instructions-modal');
+    const instructionsBtn = document.getElementById("show-instructions-btn");
+    const instructionsClose = instructionsModal.getElementsByClassName("close")[0];
 
-    btn.onclick = function() {
-        modal.style.display = "block";
+    instructionsBtn.onclick = function() {
+        instructionsModal.style.display = "block";
     }
 
-    span.onclick = function() {
-        modal.style.display = "none";
+    instructionsClose.onclick = function() {
+        instructionsModal.style.display = "none";
+    }
+
+// --- Lógica para la nueva ventana emergente de la guía de resolución ---
+    const guideModal = document.getElementById('guide-modal');
+    const guideBtn = document.getElementById("show-guide-btn");
+    const guideClose = guideModal.getElementsByClassName("close")[0];
+
+    guideBtn.onclick = function(event) {
+        event.preventDefault(); // Evita que el enlace salte a otra página
+        guideModal.style.display = "block";
+    }
+
+    guideClose.onclick = function() {
+        guideModal.style.display = "none";
     }
 
     window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
+        if (event.target == instructionsModal) {
+            instructionsModal.style.display = "none";
+        }
+        if (event.target == guideModal) {
+            guideModal.style.display = "none";
         }
     }
 	
@@ -640,8 +680,3 @@ async function generarPDF() {
     </div>
 </body>
 </html>
-
-
-
-
-
