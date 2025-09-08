@@ -91,6 +91,23 @@
         color: #7f8c8d;
         font-size: 1rem;
     }
+	
+/* Ajustes para la fila de botones de informe */
+    .report-buttons {
+        display: flex;
+        justify-content: space-between; /* Alinea los grupos a cada lado */
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .button-group-left {
+        display: flex;
+        gap: 20px; /* Mantiene el espacio entre los botones de la izquierda */
+    }
+
+    /* Estilo para el nuevo botón verde */
+    .export-btn.clear { background: var(--green); }
+    .export-btn.clear:hover { background: var(--dark-green); }
+	
 </style>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -132,10 +149,13 @@
       <input type="file" id="imageUpload" accept=".jpg,.jpeg,.png,.tif,.tiff" multiple style="display:none;">
     </div>
 
-    <div class="report-buttons">
-      <button id="saveReport" class="export-btn json"><strong>Guardar informe</strong></button>
-      <button id="loadReportBtn" class="export-btn json"><strong>Cargar informe</strong></button>
-      <input type="file" id="loadReport" accept=".json" style="display:none;">
+<div class="report-buttons">
+      <div class="button-group-left">
+        <button id="saveReport" class="export-btn json"><strong>Guardar informe</strong></button>
+        <button id="loadReportBtn" class="export-btn json"><strong>Cargar informe</strong></button>
+        <input type="file" id="loadReport" accept=".json" style="display:none;">
+      </div>
+      <button id="clearFormBtn" class="export-btn clear"><strong>Limpiar formulario</strong></button>
     </div>
 
     <div class="image-review-container">
@@ -523,6 +543,30 @@ async function generarPDF() {
       };
       reader.readAsText(file);
     });
+	
+// --- Lógica para el nuevo botón de limpiar formulario ---
+    const clearFormBtn = document.getElementById('clearFormBtn');
+
+    clearFormBtn.addEventListener('click', () => {
+        // 1. Pedimos confirmación al usuario para evitar borrados accidentales
+        const isConfirmed = confirm("¿Estás seguro de que quieres limpiar todo el formulario?\nSe perderán los datos no guardados.");
+
+        if (isConfirmed) {
+            // 2. Reseteamos los campos del formulario
+            projectName.value = '';
+            inputWidth.value = '';
+            inputHeight.value = '';
+            // El DPI se puede mantener con su valor por defecto de 200
+
+            // 3. Limpiamos la tabla de imágenes y los datos internos
+            imageReviewBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#7f8c8d; padding:30px">No hay imágenes aún</td></tr>';
+            imageDataForExport = [];
+
+            // 4. Reseteamos el input de archivos para poder volver a cargar los mismos si se desea
+            imageUpload.value = null;
+            loadReport.value = null; // AÑADIR ESTA LÍNEA
+        }
+    });	
 </script>
     <div class="footer">
         <p>Herramienta para revisión de imágenes para publicaciones | BOE - OO TT</p>
