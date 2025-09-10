@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Revisión de Imágenes para Publicación v3.1</title>
+  <title>Revisión de Imágenes para Publicación v3.3</title>
 
 <style>
     :root { --main-blue: #3498db; --dark-blue: #2980b9; --green: #27ae60; --dark-green: #219653; --red: #e74c3c; --dark-red: #c0392b; }
@@ -24,12 +24,10 @@
     #dropZone { border:2px dashed var(--main-blue); border-radius:8px; padding:40px; text-align:center; color:#e74c3c; font-size: 1.1rem; font-weight: bold; margin-bottom:20px; transition:background .2s; }
     #dropZone.dragover { background:rgba(52,152,219,0.1) }
     
-    /* CAMBIO: Contenedores de botones centrados */
     .report-buttons, .export-buttons { display:flex; flex-wrap:wrap; gap:20px; justify-content: center; }
     .report-buttons { margin-bottom:20px }
     .export-buttons { margin-top:30px }
     
-    /* CAMBIO: Botones con ancho fijo y texto en negrita */
     .export-btn { flex: 0 1 280px; padding:14px; border:none; border-radius:6px; color:#fff; font-size:1rem; cursor:pointer; transition:background .2s; display:flex; align-items:center; justify-content:center; gap:10px; font-weight: bold; }
     .export-btn strong { font-size: 1.1rem; }
     .export-btn svg { width:24px; height:24px; fill:currentColor; }
@@ -39,20 +37,22 @@
     .export-btn.excel:hover { background:var(--dark-green) }
     .export-btn.pdf { background:var(--red) }
     .export-btn.pdf:hover { background:var(--dark-red) }
-    
-    .image-review-container { overflow-x:auto; margin-bottom:30px; border:1px solid #e0e6ed; border-radius:8px; }
-    .image-review-table { width:100%; min-width:1400px; border-collapse:collapse; }
-    .image-review-table th, .image-review-table td { border:1px solid #dee2e6; padding:12px; vertical-align:top; }
+    .image-review-container { overflow-x: auto; margin-bottom: 30px; border: 1px solid #e0e6ed; border-radius: 8px; }
+	.image-review-table { width: 100%; border-collapse: collapse; }
+    .image-review-table th, .image-review-table td { border:1px solid #dee2e6; padding:12px; vertical-align:middle; }
     .image-review-table th { background:var(--main-blue); color:#fff; position:sticky; top:0; font-weight:600; text-align:left;}
     
-    /* CAMBIO: Reajuste de anchos de columna */
-    .image-review-table th:nth-child(1), .image-review-table td:nth-child(1) { width: 8%; }  /* Miniatura */
-    .image-review-table th:nth-child(2), .image-review-table td:nth-child(2) { width: 15%; min-width: 200px; text-align:left; } /* Archivo */
-    .image-review-table th:nth-child(3), .image-review-table td:nth-child(3) { width: 8%; }  /* Tamaño imagen (px) */
-    .image-review-table th:nth-child(4), .image-review-table td:nth-child(4) { width: 10%; } /* Tamaño Específico */
-    .image-review-table th:nth-child(5), .image-review-table td:nth-child(5) { width: 7%; }  /* Resolución */
-    .image-review-table th:nth-child(6), .image-review-table td:nth-child(6) { width: 7%; }  /* Calidad gráfica */
-    .image-review-table th:nth-child(7), .image-review-table td:nth-child(7) { width: 45%; min-width: 400px; } /* Observaciones */
+    .image-review-table th:nth-child(1), .image-review-table td:nth-child(1) { width: 4%; text-align: center; }
+    .image-review-table th:nth-child(2), .image-review-table td:nth-child(2) { width: 8%; }
+    .image-review-table th:nth-child(3), .image-review-table td:nth-child(3) { width: 13%; min-width: 180px; }
+    .image-review-table th:nth-child(4), .image-review-table td:nth-child(4) { width: 8%; }
+    .image-review-table th:nth-child(5), .image-review-table td:nth-child(5) { width: 10%; }
+    .image-review-table th:nth-child(6), .image-review-table td:nth-child(6) { width: 7%; }
+    .image-review-table th:nth-child(7), .image-review-table td:nth-child(7) { width: 7%; }
+    .image-review-table th:nth-child(8), .image-review-table td:nth-child(8) { width: 43%; min-width: 380px; }
+    
+    .delete-icon { cursor: pointer; color: #e74c3c; transition: transform 0.2s, color 0.2s; }
+    .delete-icon:hover { transform: scale(1.2); color: #c0392b; }
 
     .image-thumbnail { max-width:100px; max-height:100px; border-radius:4px; cursor:pointer; display:block; margin:auto; }
     .specific-size-input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-align:center; }
@@ -61,98 +61,40 @@
     #lightbox img { max-width:90%; max-height:90%; box-shadow:0 0 20px rgba(0,0,0,0.5); }
     #lightbox-close { position:absolute; top:20px; right:30px; color:white; font-size:3rem; font-weight:bold; cursor:pointer; text-shadow: 0 0 5px black; user-select:none; }
         
-    /* Estilos genéricos para el modal (ventana emergente) */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1001;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0,0,0,0.4);
-        padding-top: 60px;
-    }
-    .modal-content {
-        background-color: #fefefe;
-        margin: 5% auto;
-        padding: 30px;
-        border: 1px solid #888;
-        width: 80%;
-        max-width: 600px;
-        border-radius: 10px;
-        position: relative;
-    }
-    .modal-content h2 {
-        color: #2c3e50;
-        margin-bottom: 15px;
-        font-size: 1.2rem;
-    }
-    .modal-content ol {
-        padding-left: 25px;
-    }
-    .modal-content li {
-        margin-bottom: 12px;
-        font-size: 1rem;
-    }
-    .close {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-    }
-    .close:hover,
-    .close:focus {
-        color: black;
-        text-decoration: none;
-        cursor: pointer;
-    }
-	/* Estilos para el enlace de la guía */
-    #show-guide-btn {
-        color: var(--main-blue);
-        text-decoration: underline;
-        cursor: pointer;
-    }
-    /* Estilo para el enlace de instrucciones */
-    #show-instructions-btn {
-        background: none;
-        border: none;
-        color: var(--main-blue);
-        text-decoration: underline;
-        cursor: pointer;
-        font-size: 1rem;
-        padding: 0;
-        margin-bottom: 10px;
-        display: block;
-        text-align: left;
-    }
-	
-	.footer {
-		text-align: center;
-        margin-top: 40px;
-        padding-top: 20px;
-        border-top: 1px solid #e0e6ed;
-        color: #7f8c8d;
-        font-size: 1rem;
-    }
-	
-/* Ajustes para la fila de botones de informe */
-    .report-buttons {
-        display: flex;
-        justify-content: space-between; /* Alinea los grupos a cada lado */
-        align-items: center;
-        margin-bottom: 20px;
-    }
-    .button-group-left {
-        display: flex;
-        gap: 20px; /* Mantiene el espacio entre los botones de la izquierda */
-    }
-
-    /* Estilo para el nuevo botón verde */
+    .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); padding-top: 60px; }
+    .modal-content { background-color: #fefefe; margin: 5% auto; padding: 30px; border: 1px solid #888; width: 80%; max-width: 600px; border-radius: 10px; position: relative; }
+    .modal-content h2 { color: #2c3e50; margin-bottom: 15px; font-size: 1.2rem; }
+    .modal-content ol { padding-left: 25px; }
+    .modal-content li { margin-bottom: 12px; font-size: 1rem; }
+    .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
+    .close:hover, .close:focus { color: black; text-decoration: none; cursor: pointer; }
+    #show-guide-btn { color: var(--main-blue); text-decoration: underline; cursor: pointer; }
+    #show-instructions-btn { background: none; border: none; color: var(--main-blue); text-decoration: underline; cursor: pointer; font-size: 1rem; padding: 0; margin-bottom: 10px; display: block; text-align: left; }
+	.footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e0e6ed; color: #7f8c8d; font-size: 1rem; }
+    .report-buttons { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .button-group-left { display: flex; gap: 20px; }
     .export-btn.clear { background: var(--green); }
     .export-btn.clear:hover { background: var(--dark-green); }
 	
+	@media (max-width: 768px) {
+		.dimension-inputs { flex-direction: column; gap: 15px; }
+		.logo-container img { max-width: 200px; }
+		.report-buttons, .export-buttons { flex-direction: column; gap: 15px; }
+		.button-group-left { flex-direction: column; width: 100%; }
+		.export-btn, .report-buttons button { padding: 10px; font-size: 0.9rem; flex: 1 1 auto; width: 100%; }
+		.export-btn strong { font-size: 1rem; }
+		.container { padding: 15px; }
+		.config-section { padding: 15px; }
+		body { padding: 0; }
+	}
+	.input-with-button { display: flex; gap: 10px; align-items: center; }
+	.input-with-button input { flex-grow: 1; }
+	.input-with-button button { padding: 10px 15px; border: none; border-radius: 6px; color: #fff; background: var(--dark-blue); cursor: pointer; transition: background .2s; font-size: 0.9rem; font-weight: bold; flex-shrink: 0; }
+	.input-with-button button:hover { background: var(--main-blue); }
+
+	@media (max-width: 768px) {
+		.input-with-button { flex-direction: column; align-items: stretch; }
+	}
 </style>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -176,14 +118,20 @@
         <div class="dimension-group"><label for="projectName">Proyecto:</label><input type="text" id="projectName" placeholder="Nombre del proyecto"></div>
         <div class="dimension-group"><label for="inputWidth">Ancho general (mm):</label><input type="number" id="inputWidth" min="1"></div>
         <div class="dimension-group"><label for="inputHeight">Alto general (mm):</label><input type="number" id="inputHeight" min="1"></div>
-        <div class="dimension-group"><label for="outputType">Resolución requerida (<a href="#" id="show-guide-btn">ver guía</a>):</label><input type="number" id="inputDPI" value="200" min="72" max="1200"></div>
+		<div class="dimension-group">
+			<label for="outputType">Resolución requerida (<a href="#" id="show-guide-btn">ver guía</a>):</label>
+			<div class="input-with-button">
+				<input type="number" id="inputDPI" value="200" min="72" max="1200">
+				<button id="recalculateBtn">Recalcular</button>
+			</div>
+		</div>
       </div>
       <p class="info-text">El cálculo de resolución usa el tamaño de reproducción × la resolución que requiere la salida. Puede especificar un tamaño de reproducción distinto para cada imagen en la tabla.</p>
-      <div id="dropZone">Arrastrar o hacer clic para seleccionar imágenes JPG, PNG, TIF</div>
+      <div id="dropZone">Pulsar o arrastrar para añadir imágenes JPG, PNG, TIF</div>
       <input type="file" id="imageUpload" accept=".jpg,.jpeg,.png,.tif,.tiff" multiple style="display:none;">
     </div>
 
-<div class="report-buttons">
+    <div class="report-buttons">
       <div class="button-group-left">
         <button id="saveReport" class="export-btn json"><strong>Guardar informe</strong></button>
         <button id="loadReportBtn" class="export-btn json"><strong>Cargar informe</strong></button>
@@ -196,12 +144,13 @@
       <table class="image-review-table">
         <thead>
           <tr>
+            <th></th>
             <th>Miniatura</th><th>Archivo</th><th>Tamaño imagen (px)</th><th>Tamaño reprod. (mm)</th>
             <th>Resolución</th><th>Calidad gráfica</th><th>Observaciones</th>
           </tr>
         </thead>
         <tbody id="imageReviewBody">
-          <tr><td colspan="7" style="text-align:center; color:#7f8c8d; padding:30px">No hay imágenes aún</td></tr>
+          <tr><td colspan="8" style="text-align:center; color:#7f8c8d; padding:30px">No hay imágenes aún</td></tr>
         </tbody>
       </table>
     </div>
@@ -272,6 +221,18 @@
           loadReportBtn = document.getElementById('loadReportBtn'), loadReport = document.getElementById('loadReport'),
           spinner = document.getElementById('spinner'), lightbox = document.getElementById('lightbox'),
           lbImage = lightbox.querySelector('img'), lightboxClose = document.getElementById('lightbox-close');
+		  
+	const recalculateBtn = document.getElementById('recalculateBtn');
+	recalculateBtn.addEventListener('click', () => {
+		if (imageDataForExport.length === 0) return; 
+		showSpinner(true);
+		setTimeout(() => {
+			imageDataForExport.forEach((item, index) => {
+				updateRowStatus(index);
+			});
+			showSpinner(false);
+		}, 50); 
+	});
     let imageDataForExport = [];
 
     const showSpinner = (on=true) => spinner.style.display = on ? 'flex' : 'none';
@@ -298,8 +259,8 @@
         const item = imageDataForExport[index];
         const row = imageReviewBody.rows[index];
         if (!item || !row) return;
-
-        const sizeInput = row.cells[3].querySelector('input').value.trim();
+        
+        const sizeInput = row.cells[4].querySelector('input').value.trim();
         let currentWidthMM = parseFloat(inputWidth.value), currentHeightMM = parseFloat(inputHeight.value);
 
         if (sizeInput.includes('x')) {
@@ -311,18 +272,64 @@
         
         item.ok = checkImageSize(item.width, item.height, currentWidthMM, currentHeightMM, parseInt(inputDPI.value));
         item.specificSize = sizeInput;
-
-        const statusCell = row.cells[4];
+        
+        const statusCell = row.cells[5];
         statusCell.textContent = item.ok ? '✔' : '✖';
         statusCell.style.color = item.ok ? '#27ae60' : '#e74c3c';
     };
 
-    async function handleImageUpload(e, loadedData = null) {
+    function deleteRow(indexToDelete) {
+        const item = imageDataForExport[indexToDelete];
+        if (confirm(`¿Estás seguro de que quieres eliminar la imagen "${item.name}"?`)) {
+            imageDataForExport.splice(indexToDelete, 1);
+            imageReviewBody.deleteRow(indexToDelete);
+
+            const rows = imageReviewBody.rows;
+            for (let i = indexToDelete; i < rows.length; i++) {
+                const row = rows[i];
+                const deleteIcon = row.cells[0].querySelector('.delete-icon');
+                if (deleteIcon) {
+                    deleteIcon.onclick = () => deleteRow(i);
+                }
+                const sizeInput = row.cells[4].querySelector('.specific-size-input');
+                if (sizeInput) {
+                    sizeInput.oninput = () => updateRowStatus(i);
+                }
+            }
+            
+            if (imageReviewBody.rows.length === 0) {
+                 imageReviewBody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#7f8c8d; padding:30px">No hay imágenes aún</td></tr>`;
+            }
+        }
+    }
+
+	async function handleImageUpload(e, loadedData = null) {
       const files = loadedData ? [] : Array.from(e.target.files || []);
+      
+      let isReplacing = true;
+      if (imageDataForExport.length > 0 && files.length > 0) {
+          const wantsToAdd = confirm("Ya tiene imágenes cargadas. ¿Desea añadir las nuevas imágenes al listado actual (Aceptar) o sustituirlas (Cancelar)?");
+          if (wantsToAdd) {
+              isReplacing = false;
+          } else {
+              const wantsToReplace = confirm("¿Está seguro de que desea reemplazar el listado actual? Se perderán los cambios no guardados.");
+              if (!wantsToReplace) {
+                  imageUpload.value = null;
+                  return;
+              }
+          }
+      }
+      
       if (!files.length && !loadedData) return;
       showSpinner(true);
-      imageReviewBody.innerHTML = '';
-      imageDataForExport = [];
+
+      if (isReplacing) {
+          imageReviewBody.innerHTML = '';
+          imageDataForExport = [];
+      } else {
+          const placeholderRow = imageReviewBody.querySelector('td[colspan="8"]');
+          if (placeholderRow) placeholderRow.parentElement.remove();
+      }
 
       const generalW = parseFloat(inputWidth.value), generalH = parseFloat(inputHeight.value), dpi = parseInt(inputDPI.value);
       if ((!generalW || !generalH || !dpi) && !loadedData) {
@@ -331,45 +338,61 @@
         return;
       }
 
+      const initialIndex = imageDataForExport.length;
+
       const processItem = (item, index) => {
         const row = imageReviewBody.insertRow();
         const dataForExport = { ...item };
 
         const c0 = row.insertCell();
+        const deleteIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        deleteIcon.setAttribute("class", "delete-icon");
+        deleteIcon.setAttribute("width", "22");
+        deleteIcon.setAttribute("height", "22");
+        deleteIcon.setAttribute("viewBox", "0 0 24 24");
+        deleteIcon.setAttribute("fill", "none");
+        deleteIcon.setAttribute("stroke", "currentColor");
+        deleteIcon.setAttribute("stroke-width", "2");
+        deleteIcon.setAttribute("stroke-linecap", "round");
+        deleteIcon.setAttribute("stroke-linejoin", "round");
+        deleteIcon.innerHTML = `<path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m-6 5v6m4-6v6" />`;
+        deleteIcon.onclick = () => deleteRow(index);
+        c0.appendChild(deleteIcon);
+
+        const c1 = row.insertCell();
         const thumb = new Image();
         thumb.src = item.src; thumb.className = 'image-thumbnail';
         thumb.onclick = () => openLightbox(item.src);
-        c0.appendChild(thumb);
+        c1.appendChild(thumb);
         
         row.insertCell().textContent = item.name;
         
-        const c2 = row.insertCell();
-        c2.textContent = `${item.width}×${item.height}`; c2.style.textAlign = 'center';
-        
         const c3 = row.insertCell();
+        c3.textContent = `${item.width}×${item.height}`; c3.style.textAlign = 'center';
+        
+        const c4 = row.insertCell();
         const sizeInput = document.createElement('input');
         sizeInput.type = 'text'; sizeInput.className = 'specific-size-input';
         sizeInput.placeholder = 'ej: 120x85';
-        sizeInput.value = item.specificSize || `${generalW}x${generalH}`;
-        sizeInput.addEventListener('input', () => updateRowStatus(index));
-        c3.appendChild(sizeInput);
-        
-        const c4 = row.insertCell();
-        c4.style.textAlign = 'center'; dataForExport.statusCell = c4;
+        sizeInput.value = item.specificSize || `${generalW || ''}x${generalH || ''}`;
+        sizeInput.oninput = () => updateRowStatus(index);
+        c4.appendChild(sizeInput);
         
         const c5 = row.insertCell();
-        c5.style.textAlign = 'center';
-        const cb = document.createElement('input');
-        cb.type = 'checkbox'; cb.checked = item.quality || false;
-        c5.appendChild(cb);
-        dataForExport.checkbox = cb;
+        c5.style.textAlign = 'center'; dataForExport.statusCell = c5;
         
         const c6 = row.insertCell();
-        // CAMBIO: Aplicar la nueva clase CSS a la caja de observaciones
+        c6.style.textAlign = 'center';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox'; cb.checked = item.quality || false;
+        c6.appendChild(cb);
+        dataForExport.checkbox = cb;
+        
+        const c7 = row.insertCell();
         const ta = document.createElement('textarea');
         ta.className = 'observations-textarea';
         ta.value = item.obs || '';
-        c6.appendChild(ta);
+        c7.appendChild(ta);
         dataForExport.textarea = ta;
 
         imageDataForExport.push(dataForExport);
@@ -395,7 +418,7 @@
         try {
             const arr = await Promise.all(tasks);
             arr.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
-            arr.forEach(processItem);
+            arr.forEach((item, i) => processItem(item, initialIndex + i));
         } catch (err) { console.error(err); alert('Error procesando imágenes'); }
       }
       showSpinner(false);
@@ -483,117 +506,145 @@
         });
     }
 
+    // --- INICIO NUEVA FUNCIÓN: Cargar imagen como Base64 para el PDF ---
+    function loadImageAsBase64(url) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.onload = () => {
+                const canvas = document.createElement("canvas");
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0);
+                const dataURL = canvas.toDataURL("image/png");
+                resolve({ dataURL, width: img.width, height: img.height });
+            };
+            img.onerror = reject;
+            img.src = url;
+        });
+    }
+    // --- FIN NUEVA FUNCIÓN ---
+
+// --- INICIO DE CAMBIOS EN generarPDF ---
 async function generarPDF() {
         if (imageDataForExport.length === 0) return alert("Nada que guardar.");
         
         showSpinner(true);
 
-        const imagePromises = imageDataForExport.map(item => resizeImage(item.src, 60, 60));
-        const processedImages = await Promise.all(imagePromises);
-
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('l', 'pt', 'a4');
-        const docTitle = projectName.value || 'Informe';
-        const pageMargin = 40;
-        const pageWidth = doc.internal.pageSize.getWidth();
-
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(16);
-        doc.text(docTitle, pageWidth - pageMargin, 40, { align: 'right' });
-        
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
-        const reportTitle = `Informe de revisión de imágenes para publicación (${new Date().toLocaleDateString()})`;
-        doc.text(reportTitle, pageWidth - pageMargin, 55, { align: 'right' });
-
-        const head = [['Miniatura', 'Archivo', 'Tamaño imagen (px)', 'Tamaño reprod.', 'Resolución', 'Calidad gráfica', 'Observaciones']];
-        
-        // --- INICIO DE CAMBIOS CLAVE ---
-        const body = imageDataForExport.map((item, index) => {
-            let repro = (item.specificSize && item.specificSize.trim() !== "") ? item.specificSize : `${inputWidth.value}x${inputHeight.value}`;
+        try {
+            // Carga asíncrona de imágenes (logo y miniaturas para la tabla)
+            const logoPromise = loadImageAsBase64('https://raw.githubusercontent.com/ruimanju/Imprenta_BOE_Pict_Review/refs/heads/main/img/logo.png');
+            const imagePromises = imageDataForExport.map(item => resizeImage(item.src, 60, 60));
             
-            // 1. ANCHO REAL: Calculamos el ancho disponible para el texto en la columna "Archivo".
-            // El ancho de la columna es 160pt y le restamos 10pt de padding (5pt por cada lado).
-            const fileNameMaxWidth = 150; 
+            const [logo, processedImages] = await Promise.all([logoPromise, Promise.all(imagePromises)]);
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'pt', 'a4');
             
-            // 2. CORTE MANUAL: Usamos la función de jsPDF para dividir el nombre del archivo en un array de líneas.
-            const fileNameLines = doc.splitTextToSize(item.name, fileNameMaxWidth);
+            // --- Definición de constantes para posicionamiento (mm a pt) ---
+            const PT_PER_MM = 72 / 25.4;
+            const LOGO_WIDTH_PT = 90 * PT_PER_MM;
+            const LOGO_X_PT = 14 * PT_PER_MM;
+            const LOGO_Y_PT = 9 * PT_PER_MM;
+            const HEADER_TEXT_Y_PT = 12 * PT_PER_MM;
+            
+            // --- Cabecera del documento ---
+            const docTitle = projectName.value || 'Informe';
+            const pageMargin = 40;
+            const pageWidth = doc.internal.pageSize.getWidth();
 
-            return [
-                processedImages[index],
-                fileNameLines, // 3. Usamos el array de líneas en lugar del texto simple.
-                `${item.width}×${item.height}`,
-                repro,
-                item.ok ? 'OK' : 'INSUF.',
-                item.checkbox.checked ? 'OK' : 'INSUF.',
-                item.textarea.value.trim()
-            ];
-        });
-        // --- FIN DE CAMBIOS CLAVE ---
+            // 1. Añadir logo
+            const logoHeightPt = logo.height * (LOGO_WIDTH_PT / logo.width); // Mantener proporción
+            doc.addImage(logo.dataURL, 'PNG', LOGO_X_PT, LOGO_Y_PT, LOGO_WIDTH_PT, logoHeightPt);
 
-        doc.autoTable({
-            startY: 100,
-            head: head,
-            body: body,
-            theme: 'grid',
-            styles: { valign: 'middle', cellPadding: 5 },
-            headStyles: { halign: 'center', fontStyle: 'bold', fillColor: '#3498db' },
-            bodyStyles: { minCellHeight: 70 }, 
-            columnStyles: {
-                0: { cellWidth: 80, halign: 'center' },
-                // 4. Se elimina "overflow: 'linebreak'" porque ya no es necesario.
-                1: { cellWidth: 160 }, 
-                2: { cellWidth: 70, halign: 'center' },
-                3: { cellWidth: 70, halign: 'center' },
-                4: { cellWidth: 70, halign: 'center' },
-                5: { cellWidth: 70, halign: 'center' },
-                6: { cellWidth: 'auto', overflow: 'linebreak' },
-            },
-            didParseCell: (data) => {
-                if (data.section === 'body' && data.column.index === 0) {
-                    data.cell.text = ''; 
-                }
-                if (data.section === 'body' && (data.column.index === 4 || data.column.index === 5)) {
-                    data.cell.styles.halign = 'center';
-                    data.cell.styles.fontStyle = 'bold';
-                    data.cell.styles.fontSize = 10;
-                    if (data.cell.raw === 'OK') data.cell.styles.textColor = '#27ae60';
-                    else data.cell.styles.textColor = '#e74c3c';
-                }
-            },
-            didDrawCell: (data) => {
-                if (data.section === 'body' && data.column.index === 0) {
-                    const imgData = data.cell.raw;
-                    if (imgData && imgData.src) {
-                        const x = data.cell.x + (data.cell.width - imgData.width) / 2;
-                        const y = data.cell.y + (data.cell.height - imgData.height) / 2;
-                        doc.addImage(imgData.src, 'JPEG', x, y, imgData.width, imgData.height);
+            // 2. Título del proyecto (Helvetica 12pt negrita) y subtítulo
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(12);
+            doc.text(docTitle, pageWidth - pageMargin, HEADER_TEXT_Y_PT + 15, { align: 'right' });
+            
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            const reportTitle = `Informe de revisión de imágenes para publicación (${new Date().toLocaleDateString()})`;
+            doc.text(reportTitle, pageWidth - pageMargin, HEADER_TEXT_Y_PT + 30, { align: 'right' }); // Posición relativa al título
+
+            // --- Contenido de la tabla ---
+            const head = [['Miniatura', 'Archivo', 'Tamaño imagen (px)', 'Tamaño reprod.', 'Resolución', 'Calidad gráfica', 'Observaciones']];
+            const body = imageDataForExport.map((item, index) => {
+                let repro = (item.specificSize && item.specificSize.trim() !== "") ? item.specificSize : `${inputWidth.value}x${inputHeight.value}`;
+                const fileNameMaxWidth = 150; 
+                const fileNameLines = doc.splitTextToSize(item.name, fileNameMaxWidth);
+
+                return [
+                    processedImages[index],
+                    fileNameLines,
+                    `${item.width}×${item.height}`,
+                    repro,
+                    item.ok ? 'OK' : 'INSUF.',
+                    item.checkbox.checked ? 'OK' : 'INSUF.',
+                    item.textarea.value.trim()
+                ];
+            });
+
+            // --- Generación de la tabla con autoTable ---
+            doc.autoTable({
+                startY: 100,
+                head: head,
+                body: body,
+                theme: 'grid',
+                styles: { valign: 'middle', cellPadding: 5 },
+                headStyles: { halign: 'center', fontStyle: 'bold', fillColor: '#3498db' },
+                bodyStyles: { minCellHeight: 70 }, 
+                columnStyles: {
+                    0: { cellWidth: 80, halign: 'center' },
+                    1: { cellWidth: 160 }, 
+                    2: { cellWidth: 70, halign: 'center' },
+                    3: { cellWidth: 70, halign: 'center' },
+                    4: { cellWidth: 70, halign: 'center' },
+                    5: { cellWidth: 70, halign: 'center' },
+                    6: { cellWidth: 'auto', overflow: 'linebreak' },
+                },
+                didParseCell: (data) => {
+                    if (data.section === 'body' && data.column.index === 0) data.cell.text = ''; 
+                    if (data.section === 'body' && (data.column.index === 4 || data.column.index === 5)) {
+                        data.cell.styles.halign = 'center';
+                        data.cell.styles.fontStyle = 'bold';
+                        if (data.cell.raw === 'OK') data.cell.styles.textColor = '#27ae60';
+                        else data.cell.styles.textColor = '#e74c3c';
                     }
-                }
-            },
-			pageBreak: 'auto',
-			rowPageBreak: 'avoid',
-			willDrawCell: (data) => {
-				if (data.section === 'body' && data.cell.raw?.src) {
-					data.cell.height = Math.max(data.cell.height, data.cell.raw.height + 10);
-				}
-			},
-            didDrawPage: (data) => {
-                if (doc.internal.getNumberOfPages() > 1 && data.pageNumber > 1) {
+                },
+                didDrawCell: (data) => {
+                    if (data.section === 'body' && data.column.index === 0) {
+                        const imgData = data.cell.raw;
+                        if (imgData && imgData.src) {
+                            const x = data.cell.x + (data.cell.width - imgData.width) / 2;
+                            const y = data.cell.y + (data.cell.height - imgData.height) / 2;
+                            doc.addImage(imgData.src, 'JPEG', x, y, imgData.width, imgData.height);
+                        }
+                    }
+                },
+                // 3. Modificación del pie de página
+                didDrawPage: (data) => {
                     doc.setFontSize(8);
                     const footerText = `Informe de imágenes - ${docTitle} - pág ${data.pageNumber}`;
                     doc.text(footerText, pageWidth - pageMargin, doc.internal.pageSize.getHeight() - 15, { align: 'right' });
                 }
-            }
-        });
+            });
 
-        const pdfBlob = doc.output('blob');
-        saveFileWithPicker(pdfBlob, `${docTitle.replace(/ /g,'_')}.pdf`, [
-            { description: 'Archivo PDF', accept: { 'application/pdf': ['.pdf'] } }
-        ]);
+            // --- Guardado del archivo ---
+            const pdfBlob = doc.output('blob');
+            saveFileWithPicker(pdfBlob, `${docTitle.replace(/ /g,'_')}.pdf`, [
+                { description: 'Archivo PDF', accept: { 'application/pdf': ['.pdf'] } }
+            ]);
         
-        showSpinner(false);
+        } catch (error) {
+            console.error("Error al generar el PDF:", error);
+            alert("No se pudo generar el PDF. Asegúrese de que el archivo 'img/logo.png' exista y sea accesible.");
+        } finally {
+            showSpinner(false);
+        }
     }
+// --- FIN DE CAMBIOS EN generarPDF ---
 
     exportPDF.addEventListener('click', generarPDF);
     loadReportBtn.addEventListener('click', ()=>loadReport.click());
@@ -612,67 +663,36 @@ async function generarPDF() {
       reader.readAsText(file);
     });
 	
-// --- Lógica para el nuevo botón de limpiar formulario ---
     const clearFormBtn = document.getElementById('clearFormBtn');
-
     clearFormBtn.addEventListener('click', () => {
-        // 1. Pedimos confirmación al usuario para evitar borrados accidentales
         const isConfirmed = confirm("¿Estás seguro de que quieres limpiar todo el formulario?\nSe perderán los datos no guardados.");
-
         if (isConfirmed) {
-            // 2. Reseteamos los campos del formulario
             projectName.value = '';
             inputWidth.value = '';
             inputHeight.value = '';
-            // El DPI se puede mantener con su valor por defecto de 200
             inputDPI.value = '200';
-
-            // 3. Limpiamos la tabla de imágenes y los datos internos
-            imageReviewBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#7f8c8d; padding:30px">No hay imágenes aún</td></tr>';
+            imageReviewBody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#7f8c8d; padding:30px">No hay imágenes aún</td></tr>';
             imageDataForExport = [];
-
-            // 4. Reseteamos el input de archivos para poder volver a cargar los mismos si se desea
             imageUpload.value = null;
-            loadReport.value = null; // AÑADIR ESTA LÍNEA
+            loadReport.value = null;
         }
     });
 
-// --- Lógica para la ventana emergente de instrucciones ---
     const instructionsModal = document.getElementById('instructions-modal');
     const instructionsBtn = document.getElementById("show-instructions-btn");
     const instructionsClose = instructionsModal.getElementsByClassName("close")[0];
+    instructionsBtn.onclick = function() { instructionsModal.style.display = "block"; }
+    instructionsClose.onclick = function() { instructionsModal.style.display = "none"; }
 
-    instructionsBtn.onclick = function() {
-        instructionsModal.style.display = "block";
-    }
-
-    instructionsClose.onclick = function() {
-        instructionsModal.style.display = "none";
-    }
-
-// --- Lógica para la nueva ventana emergente de la guía de resolución ---
     const guideModal = document.getElementById('guide-modal');
     const guideBtn = document.getElementById("show-guide-btn");
     const guideClose = guideModal.getElementsByClassName("close")[0];
-
-    guideBtn.onclick = function(event) {
-        event.preventDefault(); // Evita que el enlace salte a otra página
-        guideModal.style.display = "block";
-    }
-
-    guideClose.onclick = function() {
-        guideModal.style.display = "none";
-    }
-
+    guideBtn.onclick = function(event) { event.preventDefault(); guideModal.style.display = "block"; }
+    guideClose.onclick = function() { guideModal.style.display = "none"; }
     window.onclick = function(event) {
-        if (event.target == instructionsModal) {
-            instructionsModal.style.display = "none";
-        }
-        if (event.target == guideModal) {
-            guideModal.style.display = "none";
-        }
+        if (event.target == instructionsModal) { instructionsModal.style.display = "none"; }
+        if (event.target == guideModal) { guideModal.style.display = "none"; }
     }
-	
 </script>
     <div class="footer">
         <p>Herramienta para revisión de imágenes para publicaciones | BOE - OO TT</p>
@@ -680,4 +700,3 @@ async function generarPDF() {
     </div>
 </body>
 </html>
-
